@@ -1,11 +1,17 @@
 # Super Fast Dapp Frontend
 
+<img width="817" alt="Screen Shot 2022-08-18 at 9 21 51 AM" src="https://user-images.githubusercontent.com/91382964/185419652-abad52ef-68ab-4a7f-93a0-89fb2e80f375.png">
+
+- `git clone https://github.com/oceans404/super-fast-dapp-frontend/`
+- `cd super-fast-dapp-frontend`
+- `npm i`
 - `touch .env`
 - Within .env create a REACT_APP_ALCHEMY_ID variable 
   - https://dashboard.alchemyapi.io/ "View Key" for a Polygon Mumbai Network app
   - `REACT_APP_ALCHEMY_ID = 'yourAlchemyApiKey'`
   - `GENERATE_SOURCEMAP=false`
-- Within App.js, update `contractAddress` with your contract address
+- If you've completed the backend half of this tutorial here https://github.com/oceans404/super-fast-dapp, update your App.js file at `contractAddress` with your contract address
+- `npm start`
 
 ## Available Scripts
 
