@@ -6,6 +6,11 @@ import {
   RainbowKitProvider,
   ConnectButton,
 } from "@rainbow-me/rainbowkit";
+import Box from "@mui/material/Box";
+import AppBar from "@mui/material/AppBar";
+import Container from "@mui/material/Container";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
 
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
@@ -13,12 +18,20 @@ import { publicProvider } from "wagmi/providers/public";
 import "./App.css";
 import contract from "./contracts/NumberBox.json";
 
+// Steph's NumberBox contract on Polygon Mumbai -- update to yours!
 const contractAddress = "0x07411A6297d15f25858081adCbF640665E8D0Fef";
+const scannerAddress = `https://mumbai.polygonscan.com/address/${contractAddress}`;
 const abi = contract.abi;
 
 function App() {
   const { chains, provider } = configureChains(
-    [chain.mainnet, chain.polygonMumbai, chain.optimism, chain.arbitrum],
+    [
+      chain.polygonMumbai,
+      chain.polygon,
+      chain.mainnet,
+      chain.optimism,
+      chain.arbitrum,
+    ],
     [
       alchemyProvider({ alchemyId: process.env.REACT_APP_ALCHEMY_ID }),
       publicProvider(),
@@ -37,6 +50,7 @@ function App() {
   });
 
   const [numberBox, setNumberBox] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     // Update the document title using the browser API
@@ -55,6 +69,7 @@ function App() {
       } catch (err) {
         console.log("Error: ", err);
       }
+      setIsUpdating(false);
     }
   }
 
@@ -66,6 +81,7 @@ function App() {
       const signer = provider.getSigner();
       const contract = new ethers.Contract(contractAddress, abi, signer);
       const transaction = await contract.update(parseInt(newNum));
+      setIsUpdating(true);
       await transaction.wait();
       fetchNumber();
     }
@@ -81,22 +97,49 @@ function App() {
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
         <div>
-          <ConnectButton />
-          <h1>Number Box</h1>
-          <div>
-            <form onSubmit={handleSubmit}>
-              <div>
-                <label htmlFor="numberBox">Number</label>
-                <input
-                  id="name"
-                  type="number"
-                  value={numberBox}
-                  onChange={(e) => setNumberBox(e.target.value)}
-                />
-              </div>
-              <button type="submit">Submit</button>
-            </form>
-          </div>
+          <Box component="nav">
+            <AppBar component="nav">
+              <Container
+                maxWidth="lg"
+                sx={{
+                  padding: "15px 0",
+                  justifyContent: "space-between",
+                  display: "flex",
+                }}
+              >
+                <p style={{ margin: "10px 0 0", fontSize: "30px" }}>
+                  NumberBox
+                </p>
+                <ConnectButton />
+              </Container>
+            </AppBar>
+          </Box>
+          <Box component="main" sx={{ marginTop: "100px" }}>
+            <Container maxWidth="lg">
+              <form
+                onSubmit={handleSubmit}
+                style={{ display: "flex", padding: "20px 0" }}
+              >
+                <div>
+                  <TextField
+                    id="name"
+                    type="number"
+                    value={numberBox}
+                    onChange={(e) => setNumberBox(e.target.value)}
+                    label="Number"
+                    variant="standard"
+                    disabled={isUpdating}
+                  />
+                </div>
+                <Button variant="outlined" type="submit" disabled={isUpdating}>
+                  {isUpdating ? "Updating..." : "Submit"}
+                </Button>
+              </form>
+              <a target="_blank" rel="noreferrer" href={scannerAddress}>
+                View smart contract on polyscan
+              </a>
+            </Container>
+          </Box>
         </div>
       </RainbowKitProvider>
     </WagmiConfig>
